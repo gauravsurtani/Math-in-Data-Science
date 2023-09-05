@@ -1,0 +1,200 @@
+---
+title: 'Week2: Literate Programming'
+author: "Gaurav Surtani"
+date: "2023-09-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Include Tidyverse library
+library(tidyverse)
+```
+
+```{r import-data}
+# Import Data
+indata <- read.csv("data/FertilityRates.csv")
+```
+
+```{r data-summary}
+# Check if data import was as expected
+dim(indata)
+head(indata)
+```
+
+```{r data-frame-tibble}
+# Is it a data frame or a tibble?
+is.data.frame(indata)
+
+indata <- as_tibble(indata)
+is_tibble(indata)
+```
+
+---
+A data frame is a fundamental data structure in R, while a tibble is a modern and enhanced version of a data frame. Tibbles offer improved printing, subsetting, and other functionalities. We convert the dataset to a tibble for easier data manipulation and analysis.
+---
+
+```{r data-summary-2}
+# Summary of data
+summary(indata)
+```
+
+
+
+```{r factorize-country-name}
+# Convert Country Name into a factor
+indata$Country.Name <- as.factor(indata$Country.Name)
+summary(indata$Country.Name)
+```
+
+```{r factorize-indicator-name}
+# Convert Indicator Name into a factor
+indata$Indicator.Name <- as.factor(indata$Indicator.Name)
+summary(indata$Indicator.Name)
+```
+
+---
+ We convert it into a factor to treat it as a categorical variable. The summary shows the unique categories and their counts, providing insights into the distribution of countries.
+---
+
+```{r remove-extra-columns}
+# Remove extra columns
+indata_cleaned <- select(indata, -(Country.Code:Indicator.Code))
+head(indata_cleaned)
+```
+
+```{r pivot-data}
+# Pivot to long dataset
+indata_pivoted <- pivot_longer(indata_cleaned, c(str_c("X", c(1960:2011))), names_to = "Year", values_to="Fertility.Rates")
+head(indata_pivoted)
+```
+
+---
+Pivoting to a long format helps in analyzing time-series data more efficiently. It transforms the dataset from a wide format, where years are columns, to a long format, where each row represents a single observation with a year and fertility rate.
+---
+
+```{r format-year-values}
+# Format Year values
+indata_pivoted$Year <- as.integer(str_sub(indata_pivoted$Year, 2,5))
+```
+
+```{r check-missing-values}
+# Check Missing Values
+sum(is.na(indata_pivoted$Fertility.Rates))
+```
+
+---
+Checking for missing values is crucial to assess data quality. The result indicates the total count of missing values in the "Fertility.Rates" column.
+---
+
+```{r check-missing-values-by-country}
+# Check missing values by country
+
+## Step 1: Filter by missing values
+## Step 2: Group by country
+## Step 3: Count number of values
+
+indata_pivoted %>%  filter(is.na(Fertility.Rates)) %>% group_by(Country.Name) %>% summarise(count = n())
+```
+
+```{r fill-missing-values}
+# Fill missing values within countries
+indata_filled <- indata_pivoted %>% group_by(Country.Name) %>% fill(Fertility.Rates, .direction ="downup") %>% ungroup()
+
+## Check
+indata_filled %>%  filter(is.na(Fertility.Rates)) %>% group_by(Country.Name) %>% summarise(count = n())
+
+indata_filled <- indata_filled %>% filter(!is.na(Fertility.Rates))
+```
+
+---
+We fill missing values to ensure continuity in the time series. The fill function fills missing values with nearby non-missing values within each country.
+---
+
+```{r plot-fertility-rates}
+# Plot Fertility Rates by Year
+ggplot(data = indata_filled) + geom_point(mapping = aes(x=Year, y = Fertility.Rates), position = "jitter", alpha = 0.1) + geom_smooth(mapping = aes(x=Year, y = Fertility.Rates)) + labs(x = "Year", y = "Fertility Rates", title = "Fertility Rates over the years", subtitle = "Global fertility rates have decreased since 1960")
+```
+
+---
+The scatter plot shows the relationship between fertility rates and years. Smoothing is applied to visualize trends or patterns in the data.
+---
+
+```{r categorize-countries}
+# Need a way to categorize 210 countries
+
+## Option 1: Subset the data
+indata_subset <- filter(indata_filled, Country.Name %in% c("United States", "Mexico", "Canada"))
+
+ggplot(data = indata_subset) + geom_line(mapping = aes(x=Year, y = Fertility.Rates, color = Country.Name), alpha = 0.5) + labs(x = "Year", y = "Fertility Rates", title = "Fertility Rates over the years", subtitle = "Global fertility rates have decreased since 1960")
+
+## Option 2: Select based on statistics
+
+# Top 10
+
+indata_filled %>%  group_by(Country.Name) %>% summarise(avg = mean(Fertility.Rates)) %>% arrange(desc(avg)) %>% print(n = 10)
+
+# Bottom 10
+
+indata_filled %>%  group_by(Country.Name) %>% summarise(avg = mean(Fertility.Rates)) %>% arrange(desc(avg)) %>% top_n(10) %>% ggplot() + geom_bar(mapping = aes(x = Country.Name, y = avg), stat = "identity") +coord_flip()
+```
+
+
+The code calculates the average fertility rates for each country, arranges them in descending order, and prints the top 10 countries with the highest average fertility rates.
+
+
+```{r categorize-countries-2}
+### Option
+library(countrycode)
+
+indata_df <- as.data.frame(indata_filled)
+indata_df$Continent.Name <- factor(countrycode(sourcevar = indata_df[,"Country.Name"], origin = "country.name", destination = "continent"))
+
+indata_df$Region.Name <- factor(countrycode(sourcevar = indata_df[,"Country.Name"], origin = "country.name", destination = "region"))
+
+head(indata_df)
+
+indata <- as_tibble(indata_df)
+
+ggplot(data = indata) + geom_point(mapping = aes(x=Year, y = Fertility.Rates, color = Continent.Name), position = "jitter", alpha = 0.6) + labs(x = "Year", y = "Fertility Rates", title = "Fertility Rates over the years", subtitle = "Global fertility rates have decreased since 1960")
+```
+
+```{r facet-plotting}
+# Facet Plotting
+ggplot(data =  indata) + geom_point(mapping = aes(x=Year, y = Fertility.Rates, color = Country.Name), position = "jitter", alpha = 0.2, show.legend = FALSE) + facet_wrap(~ Region.Name)
+```
+
+---
+Facet plotting allows us to create multiple small plots (facets) based on a categorical variable (in this case, "Region.Name"). It helps in visualizing fertility rate trends for different regions separately.
+---
+
+```{r filtering-and-plotting}
+# Filtering and Plotting
+indata %>% filter(Region.Name == "Middle East & North Africa" & Continent.Name == "Asia") %>% ggplot() + geom_line(mapping = aes(x =Year, y = Fertility.Rates, color =  Country.Name), size = 1, linetype = 2)
+```
+
+---
+The code filters and plots fertility rate trends for countries in the Middle East & North Africa region within the Asia continent. It allows for a focused analysis of this specific region
+---
+
+```{r boxplot}
+# Boxplot
+ggplot(data =  indata, mapping = aes(x = Continent.Name, y = Fertility.Rates)) + geom_boxplot() + coord_flip()
+```
+
+```{r histogram}
+# Histogram
+ggplot(data = indata) + geom_histogram(mapping = aes(x = Fertility.Rates), binwidth = 0.5)
+```
+
+---
+The histogram illustrates the distribution of fertility rates, showing the frequency of rates within specified bins, which helps in understanding the overall distribution and any potential patterns.
+---
+
+```{r barchart}
+# Barchart
+indata %>% group_by(Region.Name) %>% summarise(avg = mean(Fertility.Rates)) %>% ggplot(mapping = aes(x = reorder(Region.Name, -avg), y = avg, fill=Region.Name)) + geom_bar(stat = "identity") + coord_flip()
+```
+
+The bar chart visualizes the average fertility rates by region. The reorder function is used to reorder the regions based on their average fertility rates, ensuring that regions are displayed in descending order of fertility rates.
+Conclusion: In this in-class coding exercise, we performed various data manipulation and visualization tasks using R. We explored the dataset, cleaned and transformed the data, analyzed missing values, and created informative visualizations to understand fertility rate trends over time and across different categories.
