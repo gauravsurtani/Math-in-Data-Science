@@ -65,6 +65,29 @@ summary_by_species <- aggregate(Sepal.Length ~ Species, data = iris, summary)
 print(summary_by_species)
 ```
 
+# Calculate mode function
+```{r}
+  calculate_mode <- function(x) {
+  uniq_x <- unique(x)
+  freq <- table(x)
+  mode_value <- uniq_x[which.max(freq)]
+  return(mode_value)
+}
+```
+
+# Calculate mode and standard deviation for each numeric variable
+```{r}
+numeric_variables <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+
+for (var in numeric_variables) {
+  mode_value <- calculate_mode(iris[[var]])
+  sd_value <- sd(iris[[var]])
+  cat("Variable:", var, "\n")
+  cat("Mode:", mode_value, "\n")
+  cat("Standard Deviation:", sd_value, "\n\n")
+}
+```
+
 # Visualizations
 
 ## Scatterplot of Sepal Length vs. Sepal Width by Species
@@ -99,3 +122,37 @@ ggplot(iris, aes(x = Species, y = Sepal.Length, fill = Species)) +
   geom_boxplot() +
   labs(x = "Species", y = "Sepal Length", title = "Boxplot of Sepal Length by Species")
 ```
+
+Based on the analysis and visualizations of the Iris dataset, we can draw several conclusions:
+
+1. **Sepal Length vs. Sepal Width:**
+   - There is a moderate negative correlation between sepal length and sepal width. This suggests that as sepal length increases, sepal width tends to decrease, and vice versa. However, the correlation is not very strong.
+
+2. **Petal Length vs. Petal Width:**
+   - There is a strong positive correlation between petal length and petal width. This indicates that as petal length increases, petal width also tends to increase, and vice versa.
+
+3. **Sepal Length vs. Petal Length (by Species):**
+   - Each species has distinct clusters in the scatterplot, indicating that sepal length and petal length can be used to differentiate between the species. Setosa typically has the shortest sepal and petal lengths, while virginica tends to have the longest.
+
+4. **Distribution of Sepal Length and Width:**
+   - Sepal lengths are spread out across a range of values, with a slight skew towards longer sepal lengths. Sepal widths show a wider range, with two noticeable peaks, possibly indicating the presence of two subgroups.
+
+5. **Distribution of Petal Length and Width:**
+   - Petal lengths and widths exhibit clear groupings, suggesting distinct categories within the dataset. Setosa species has the smallest petals, while virginica species has the largest.
+
+6. **Comparison of Sepal Lengths by Species:**
+   - There are significant differences in sepal lengths between the three species. Setosa has the shortest sepal lengths, followed by versicolor, and then virginica with the longest sepal lengths.
+
+7. **Comparison of Petal Lengths by Species:**
+   - There are significant differences in petal lengths between the three species. Setosa has the shortest petal lengths, followed by versicolor, and then virginica with the longest petal lengths.
+
+8. **Outliers:**
+   - There are no apparent outliers in the measurements, suggesting that the data is relatively clean and consistent.
+
+9. **Patterns for Species Classification:**
+   - Based on the measurements, it is possible to visually distinguish between the three species. Setosa tends to have the smallest petals, while virginica tends to have the largest.
+
+10. **Consistency of Measurements within Species:**
+    - There is relatively low variability within each species for a particular measurement. This indicates that the measurements are fairly consistent within each species.
+
+Overall, the analysis of the Iris dataset reveals that the sepal and petal measurements are effective features for differentiating between the three species (setosa, versicolor, and virginica). The dataset is well-structured, with clear patterns that can be used for further analysis or classification tasks.
