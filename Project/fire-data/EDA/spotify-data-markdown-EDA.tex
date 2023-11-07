@@ -1,0 +1,563 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Spotify-data-EDA},
+  pdfauthor={Gaurav Surtani},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Spotify-data-EDA}
+\author{Gaurav Surtani}
+\date{2023-11-04}
+
+\begin{document}
+\maketitle
+
+\hypertarget{read-data-from-csv-file}{%
+\subsubsection{Read data from CSV file:}\label{read-data-from-csv-file}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"spotify{-}2023.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{know-the-dimensions}{%
+\subsubsection{Know the dimensions:}\label{know-the-dimensions}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dim}\NormalTok{(data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 953  24
+\end{verbatim}
+
+\hypertarget{check-the-new-dimensions-of-the-cleaned-data}{%
+\subsubsection{Check the new dimensions of the cleaned
+data:}\label{check-the-new-dimensions-of-the-cleaned-data}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{spotify\_data }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(data)}
+\FunctionTok{dim}\NormalTok{(spotify\_data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 953  24
+\end{verbatim}
+
+\hypertarget{exploring-spotify-music-trends}{%
+\section{Exploring Spotify Music
+Trends}\label{exploring-spotify-music-trends}}
+
+\hypertarget{introduction}{%
+\subsection{Introduction}\label{introduction}}
+
+I'm interested in understanding what musical attributes and trends are
+associated with popularity and success on Spotify. Specifically, I want
+to explore how release date, tempo, danceability, energy, etc. relate to
+metrics like streams and playlist additions. This could shed light on
+what current listeners value in music.\\
+I have chosen the Spotify dataset as it provides a comprehensive list of
+the most famous songs of 2023. I am curious to explore various aspects
+of popular music and how songs perform across different streaming
+platforms.
+
+\hypertarget{data}{%
+\subsection{Data}\label{data}}
+
+\hypertarget{summary}{%
+\subsubsection{Summary}\label{summary}}
+
+The data comes from a CSV file containing details on songs released in
+2022-2023 that appeared on Spotify charts and playlists. It has 950+
+rows and 23 columns, with each row representing a song.
+
+\textbf{Key variables i want to focus on in this dataset is as belows}:
+- release\_date: date song was released - streams: total streams on
+Spotify - playlist\_adds: number of Spotify playlists song was added to
+- bpm: beats per minute - danceability: Spotify danceability score -
+energy: Spotify energy score - key: song key - mode: major/minor
+
+The data was web scraped and compiled in January 2023.
+
+\begin{itemize}
+\item
+  \textbf{Data Source}: The dataset is sourced from Kaggle
+  \href{https://www.kaggle.com/datasets/nelgiriyewithana/top-spotify-songs-2023/data}{Link}
+  and Spotify and contains information about popular songs in 2023.
+\item
+  \textbf{Data Collection}: The data was collected through a combination
+  of sources, including Spotify's internal databases, music charts, and
+  streaming statistics, through web scraping or API calls to gather
+  additional information done in Kaggle
+\item
+  \textbf{Cases}: Each row in the dataset represents a unique song. It
+  provides detailed information about each song's attributes,
+  popularity, and presence on various music platforms.
+\item
+  \textbf{Variables}: (Referenced from Kaggle variable list)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{track\_name}: Name of the song.
+  \item
+    \texttt{artist(s)\_name}: Name of the artist(s) of the song.
+  \item
+    \texttt{artist\_count}: Number of artists contributing to the song.
+  \item
+    \texttt{released\_year}: Year when the song was released.
+  \item
+    \texttt{released\_month}: Month when the song was released.
+  \item
+    \texttt{released\_day}: Day of the month when the song was released.
+  \item
+    \texttt{in\_spotify\_playlists}: Number of Spotify playlists the
+    song is included in.
+  \item
+    \texttt{in\_spotify\_charts}: Presence and rank of the song on
+    Spotify charts.
+  \item
+    \texttt{streams}: Total number of streams on Spotify.
+  \item
+    \texttt{in\_apple\_playlists}: Number of Apple Music playlists the
+    song is included in.
+  \item
+    \texttt{in\_apple\_charts}: Presence and rank of the song on Apple
+    Music charts.
+  \item
+    \texttt{in\_deezer\_playlists}: Number of Deezer playlists the song
+    is included in.
+  \item
+    \texttt{in\_deezer\_charts}: Presence and rank of the song on Deezer
+    charts.
+  \item
+    \texttt{in\_shazam\_charts}: Presence and rank of the song on Shazam
+    charts.
+  \item
+    \texttt{bpm}: Beats per minute, a measure of song tempo.
+  \item
+    \texttt{key}: Key of the song.
+  \item
+    \texttt{mode}: Mode of the song (major or minor).
+  \item
+    \texttt{danceability\_\%}: Percentage indicating how suitable the
+    song is for dancing.
+  \item
+    \texttt{valence\_\%}: Positivity of the song's musical content.
+  \item
+    \texttt{energy\_\%}: Perceived energy level of the song.
+  \item
+    \texttt{acousticness\_\%}: Amount of acoustic sound in the song.
+  \item
+    \texttt{instrumentalness\_\%}: Amount of instrumental content in the
+    song.
+  \item
+    \texttt{liveness\_\%}: Presence of live performance elements.
+  \item
+    \texttt{speechiness\_\%}: Amount of spoken words in the song.
+  \end{itemize}
+\item
+  \textbf{Type of Study}: This dataset is observational, as it provides
+  information about songs and their attributes without any controlled
+  experiments.
+\end{itemize}
+
+\textbf{--------------------------------------------------------------------------------------}
+
+\hypertarget{exploratory-data-analysis}{%
+\section{Exploratory Data Analysis:}\label{exploratory-data-analysis}}
+
+\hypertarget{visualizations}{%
+\subsection{Visualizations:}\label{visualizations}}
+
+\hypertarget{histograms}{%
+\subsection{Histograms:}\label{histograms}}
+
+I chose to start with Histograms of Streams and Playlist Additions
+because:\\
+- They provide an overview of the data distribution. You can immediately
+see if the data is skewed, has a normal distribution, or has multiple
+modes.\\
+- They help identify outliers.If there's a long tail, that could suggest
+the presence of outliers. We may have to remove some outliers at the end
+because they might possibly skew the results towards them.\\
+- They are a precursor to data cleaning. If you spot any anomalies, such
+as unexpected spikes that don't correspond to the real-world behavior of
+the data, this might indicate errors or noise in the data collection
+process that need to be addressed.
+
+\hypertarget{histograms-for-streams-in-millions-and-playlist-adds}{%
+\subsubsection{1. Histograms for Streams in millions and Playlist
+Adds:}\label{histograms-for-streams-in-millions-and-playlist-adds}}
+
+\textbf{We scale down to the stream to in millions,convert to int and
+clean-up NA's to improve data clarity}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{spotify\_data}\SpecialCharTok{$}\NormalTok{streams }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(spotify\_data}\SpecialCharTok{$}\NormalTok{streams))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: NAs introduced by coercion
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{spotify\_data }\OtherTok{\textless{}{-}}\NormalTok{ spotify\_data[}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(spotify\_data}\SpecialCharTok{$}\NormalTok{streams), ]}
+\NormalTok{spotify\_data}\SpecialCharTok{$}\NormalTok{streams\_in\_millions }\OtherTok{\textless{}{-}}\NormalTok{ spotify\_data}\SpecialCharTok{$}\NormalTok{streams}\SpecialCharTok{/}\DecValTok{1000000}
+\FunctionTok{summary}\NormalTok{(spotify\_data}\SpecialCharTok{$}\NormalTok{streams\_in\_millions)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##    0.003  141.636  290.531  514.137  673.869 3703.895
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(spotify\_data, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ streams\_in\_millions)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{100}\NormalTok{, }\AttributeTok{fill =} \StringTok{"blue"}\NormalTok{, }\AttributeTok{color =} \StringTok{"gray"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Distribution of Streams"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{spotify-data-markdown-EDA_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(spotify\_data, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ in\_spotify\_playlists)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{binwidth =} \DecValTok{1000}\NormalTok{, }\AttributeTok{fill =} \StringTok{"green"}\NormalTok{, }\AttributeTok{color =} \StringTok{"black"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Distribution of Songs added in playlists"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{spotify-data-markdown-EDA_files/figure-latex/unnamed-chunk-4-2.pdf}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Distribution of Streams}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The histogram for \texttt{Streams} is \textbf{right-skewed}. Most
+    songs have a relatively small number of streams (in millions), while
+    a few songs have a very high number of streams.
+  \item
+    There is a noticeable peak in the distribution, which again suggests
+    that a higher number of songs have fewer streams.
+  \item
+    The long tail to the right indicates that while most songs don't
+    achieve extremely high stream counts, there are a select few that
+    do.
+  \end{itemize}
+\item
+  \textbf{Distribution of Playlist Adds}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    The histogram for \texttt{Songs\ added\ in\ playlists} shows a
+    \textbf{heavily right-skewed} distribution. This indicates that a
+    large number of songs have a relatively small number of playlist
+    additions, while only a few songs have a very high number of
+    additions.
+  \item
+    The peak at the left suggests that the most common number of
+    playlist additions is low, near zero.
+  \item
+    There are a few outliers with a very high number of playlist adds,
+    but these are exceptional.
+  \item
+    The distribution suggests that it is relatively rare for songs to be
+    added to a large number of playlists.
+  \end{itemize}
+\end{enumerate}
+
+\hypertarget{scatterplots}{%
+\subsection{ScatterPlots:}\label{scatterplots}}
+
+\hypertarget{song-added-to-playlist-vs.-energy-level-of-the-song}{%
+\subsubsection{1. Song Added to Playlist vs.~Energy Level of the
+song:}\label{song-added-to-playlist-vs.-energy-level-of-the-song}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{spotify\_data\_lessthan10000\_playlist }\OtherTok{\textless{}{-}}\NormalTok{ spotify\_data }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(in\_spotify\_playlists }\SpecialCharTok{\textless{}=} \DecValTok{10000}\NormalTok{)}
+
+\FunctionTok{ggplot}\NormalTok{(spotify\_data\_lessthan10000\_playlist, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ energy\_., }\AttributeTok{y =}\NormalTok{ in\_spotify\_playlists)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.75}\NormalTok{, }\AttributeTok{color =} \StringTok{"blue"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Song Added to Playlist  vs. Energy Level of the song"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Energy Level"}\NormalTok{,}
+       \AttributeTok{y =} \StringTok{"Playlists that song is present in"}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{xlim}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{100}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{spotify-data-markdown-EDA_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\textbf{Song Added to Playlist vs.~Energy Level of the song}: - The plot
+shows a wide spread of points, suggesting \emph{there isn't a clear
+linear relationship} between the energy level of songs and the number of
+playlists they appear in. - While songs of all energy levels appear to
+have a chance of being added to a range of playlists, there is a
+concentration of songs with lower playlist presence, indicating that
+most songs, regardless of energy, tend to have a lower number of
+playlist adds. - There are some songs with high energy levels that also
+have a higher number of playlist adds, but these are not the majority,
+indicating that high energy alone does not guarantee a higher presence
+in playlists.
+
+\hypertarget{danceability-of-the-song-vs.-tempo}{%
+\subsubsection{2. Danceability of the Song
+vs.~Tempo:}\label{danceability-of-the-song-vs.-tempo}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(spotify\_data, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ danceability\_., }\AttributeTok{y =}\NormalTok{ bpm )) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.6}\NormalTok{, }\AttributeTok{color =} \StringTok{"purple"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Danceability of the Song vs. Tempo"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Danceability of the Song"}\NormalTok{,}
+       \AttributeTok{y =} \StringTok{"Tempo (BPM)"}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{xlim}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{100}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{spotify-data-markdown-EDA_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\textbf{Danceability of the Song vs.~Tempo}: - This plot shows a broad
+and relatively uniform distribution of points across the range of
+danceability scores between 25 and 80. - There is danceability on bpm in
+range of 80 - 180. The spread of BPM across danceability scores suggests
+that songs with a wide range of tempos can be danceable, and high
+danceability is not confined to a narrow tempo range. - There doesn't
+seem to be a strong correlation between danceability and tempo based on
+this plot, indicating that tempo might not be a defining factor in
+danceability, or at least that danceable songs can come at a variety of
+tempos.
+
+\hypertarget{scatterplots-1}{%
+\subsection{ScatterPlots:}\label{scatterplots-1}}
+
+\hypertarget{average-tempo-by-musical-key}{%
+\subsubsection{1. Average Tempo by Musical
+Key:}\label{average-tempo-by-musical-key}}
+
+Which songs have highest tempo based on the musical key. We answer these
+type of questions using this plot. By using this plot, you are able to
+present a clear and statistically grounded picture of how tempo varies
+by musical key in the songs from your Spotify data. It's a more nuanced
+view than simply plotting the raw data or the means without confidence
+intervals, as it takes into account the precision of your estimates.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{spotify\_data\_filtered\_emptyKey }\OtherTok{\textless{}{-}}\NormalTok{ spotify\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(key) }\SpecialCharTok{\&} \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(bpm) }\SpecialCharTok{\&}\NormalTok{ bpm }\SpecialCharTok{!=} \DecValTok{0} \SpecialCharTok{\&}\NormalTok{ key}\SpecialCharTok{!=}\StringTok{\textquotesingle{}\textquotesingle{}}\NormalTok{)}
+
+\FunctionTok{ggplot}\NormalTok{(spotify\_data\_filtered\_emptyKey, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{as.factor}\NormalTok{(key), }\AttributeTok{y =}\NormalTok{ bpm)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_pointrange}\NormalTok{(}\AttributeTok{stat =} \StringTok{"summary"}\NormalTok{, }\AttributeTok{fun.data =} \StringTok{"mean\_cl\_normal"}\NormalTok{, }\AttributeTok{color =} \StringTok{"blue"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Average Tempo by Musical Key"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Musical Key"}\NormalTok{,}
+       \AttributeTok{y =} \StringTok{"Tempo (BPM)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{spotify-data-markdown-EDA_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+The graph suggests a stable trend in song tempos across musical keys,
+with average BPMs closely grouped between 120 and 130. Variability
+within each key is moderate, and no particular key is associated with a
+distinctly faster or slower tempo. This indicates that a song's key is
+likely not a major factor in determining its tempo.
+
+The \texttt{geom\_pointrange} plot you have created is effectively a way
+to visualize the mean tempo (\texttt{bpm}) for songs in each musical key
+(\texttt{key}) along with the confidence intervals for those means.
+
+\hypertarget{what-questions-this-plot-answers}{%
+\subsubsection{What Questions This Plot
+Answers:}\label{what-questions-this-plot-answers}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{What is the average tempo for songs in each musical key?} You
+  can compare the central tendency (mean bpm) across different keys.
+\item
+  \textbf{How much variability is there in the tempo of songs within
+  each key?} The length of the vertical lines (the point ranges)
+  indicates the confidence interval for the mean, which reflects
+  variability. A longer line means more variability; a shorter line
+  means less.
+\item
+  \textbf{Are there significant differences in tempo between keys?} If
+  the confidence intervals for two keys don't overlap, it suggests a
+  significant difference in the average tempos between those keys.
+\item
+  \textbf{Are certain keys associated with faster or slower tempos?}
+  This can be seen by the position of the point on the y-axis (tempo).
+\end{itemize}
+
+\hypertarget{conclusion-i-draw-from-the-given-analysis}{%
+\subsection{Conclusion I draw from the given
+analysis:}\label{conclusion-i-draw-from-the-given-analysis}}
+
+I calculated summary statistics and visualized distributions of key
+variables:
+
+\begin{itemize}
+\item
+  Most songs are relatively recent, released in 2022 or 2023. Streams
+  and playlist adds are right skewed, with most songs having
+  \textless500M streams and \textless200 playlist adds.
+\item
+  There is danceability on bpm in range of 80 - 180. The spread of BPM
+  across danceability scores suggests that songs with a wide range of
+  tempos can be danceable, and high danceability is not confined to a
+  narrow tempo range.
+\item
+  Songs released more recently tend to have fewer streams, likely
+  because they've had less time to accumulate them. Songs with more
+  playlist adds also tend to have more streams.
+\item
+  While songs of all energy levels appear to have a chance of being
+  added to a range of playlists, there is a concentration of songs with
+  lower playlist presence, indicating that most songs, regardless of
+  energy, tend to have a lower number of playlist adds.
+\end{itemize}
+
+\textbf{--------------------------------------------------------------------------------------}
+
+\hypertarget{future-questions-that-i-can-ask-from-the-complete-dataset}{%
+\subsection{Future Questions that I can ask from the complete
+dataset!}\label{future-questions-that-i-can-ask-from-the-complete-dataset}}
+
+I'd like to test hypotheses about how song attributes relate to
+popularity:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Are songs with higher danceability scores streamed more?
+\item
+  Do songs with higher energy have more playlist adds?
+\item
+  Are songs in a major key streamed more than songs in a minor key?
+\end{enumerate}
+
+\textbf{--------------------------------------------------------------------------------------}
+
+\end{document}

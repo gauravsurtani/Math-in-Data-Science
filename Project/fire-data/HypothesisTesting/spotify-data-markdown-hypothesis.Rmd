@@ -1,0 +1,193 @@
+---
+title: "HypothesisTesting - Top Songs of Spotify - 2023"
+author: "Gaurav Surtani"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Read data from CSV file:
+```{r}
+data <- read.csv("spotify-2023.csv")
+```
+
+### Print the first few rows of the data:
+```{r}
+head(data)
+```
+
+### Know the dimensions:
+```{r}
+dim(data)
+```
+
+### Rows and columns:
+```{r}
+nrow(data)
+ncol(data)
+```
+
+
+### Checking for data quality issues:
+```{r}
+#summary(data)
+#str(data)
+#head(data)
+```
+
+```{r}
+missing_values <- sum(is.na(data))
+cat("Number of missing values:", missing_values, "\n")
+
+null_values <- sum(is.null(data))
+cat("Number of null values:", null_values, "\n")
+cat("Proportion of missing values:", mean(is.na(data)), "\n")
+```
+
+### Check the new dimensions of the cleaned data:
+```{r}
+spotify_data <- na.omit(data)
+dim(spotify_data)
+```
+
+### Cleared the data with NA values
+```{r}
+missing_values_cleaned <- sum(is.na(spotify_data))
+missing_values_cleaned
+```
+
+# Assignment on Hypothesis Testing of dataset.
+## Hypothesis Testing
+### Null Hypothesis:
+(Referred to this page for getting average streams of songs on Spotify)[Spotify Data](https://www.demandsage.com/spotify-stats/)
+```{r}
+constant_value <- 150000000  # Got the value from the link above to check the numbers of times song was played in the year 2023.
+
+# Remove missing values from 'streams'
+streams <- data$streams[!is.na(data$streams)]
+streams <- as.numeric(streams[!is.na(streams) & grepl("^\\d+$", streams)])
+# Check if there are still missing values
+if (any(is.na(streams))) {
+  stop("There are still missing values in 'streams'. Please handle missing values.")
+}
+
+# Perform one-sample t-test
+sample_hypothesis_result <- t.test(streams, mu = constant_value)
+
+# Display test results
+# print(sample_hypothesis_result)
+
+# Check if null hypothesis is rejected
+if (sample_hypothesis_result$p.value < 0.05) {
+  cat("Reject the null hypothesis\n")
+} else {
+  cat("Fail to reject the null hypothesis\n")
+}
+```
+
+We want to know if the average number of streams for music tracks is significantly different from 150 million streams. We use a statistical method called a one-sample t-test for this.
+
+- **Null Hypothesis:** The average streams for tracks is equal to 150 million.
+- **Alternative Hypothesis:** The average streams for tracks is not equal to 150 million.
+
+We collect data on the number of streams for tracks and perform the t-test. If the p-value is less than 0.05, we reject the null hypothesis, suggesting that there's evidence the average number of streams is different from 150 million.
+
+A lower p-value (typically < 0.05) suggests strong evidence against the null hypothesis, leading to its rejection. It indicates that observed data is unlikely under the assumption of the null hypothesis being true. A higher p-value (typically ≥ 0.05) suggests a lack of strong evidence against the null hypothesis, leading to the failure to reject it. It means the observed data is reasonably likely under the assumption of the null hypothesis.
+
+### Understanding the Two-Sample T-Test
+
+**Objective:** We are comparing the danceability scores between two groups of tracks. Group 1 has tracks by artists with 1 count, and Group 2 has tracks by artists with 2 counts.
+
+```{r}
+# Assuming 'danceability_.' is the variable of interest
+# Assuming 'Group1' and 'Group2' are the two groups in your dataset
+group1 <- data[data$artist_count == 1, "danceability_."]
+group2 <- data[data$artist_count == 2, "danceability_."]
+```
+
+**Explanation:**: We want to check what is differenece in danceability% of a song, when a song has 1 artist or 2 artists.
+
+```{r}
+# Remove missing values from both groups
+group1 <- group1[!is.na(group1)]
+group2 <- group2[!is.na(group2)]
+```
+
+**Explanation:** Data cleanup done for both groups.
+
+```{r}
+# Check if there are still missing values
+if (any(is.na(group1)) || any(is.na(group2))) {
+  stop("There are still missing values in 'danceability_.'. Please handle missing values.")
+}
+```
+
+**Explanation:** We perform a check to ensure that after removing missing values, both groups are free of any missing data. If there are still missing values, we stop and ask to handle them because missing data can affect the accuracy of our analysis.
+
+```{r}
+# Perform two-sample t-test
+t_result <- t.test(group1, group2)
+```
+
+**Explanation:** This is the heart of the analysis. We're using a statistical test called a two-sample t-test to compare the average danceability scores between 'group1' and 'group2.' The result (stored in 't_result') will provide information on whether the difference in danceability scores between the two groups is statistically significant.
+
+```{r}
+# Display test results
+print(t_result)
+```
+
+**Explanation:** We print out the results of the t-test, which include statistics such as the t-value and p-value. These values help us make decisions about whether the danceability scores are significantly different between the two groups.   
+t: Measures the size and direction of the difference between groups.    
+df (degrees of freedom): Influences the shape of the t-distribution.    
+p-value: Probability of observing the t-statistic, indicating evidence against the null hypothesis.   
+
+
+#### Checking Rejection Criteria
+
+```{r}
+# Check if null hypothesis is rejected
+if (t_result$p.value < 0.05) {
+  cat("Reject the null hypothesis\n")
+} else {
+  cat("Fail to reject the null hypothesis\n")
+}
+```
+
+**Explanation:** Based on the p-value (a measure of evidence against the null hypothesis), we make a decision. 
+**If the p-value is less than 0.05 (a commonly chosen significance level), we reject the null hypothesis.This means we have evidence that the danceability scores are significantly different between the two groups.**  
+If the p-value is greater than 0.05, we fail to reject the null hypothesis, suggesting that there isn't enough evidence to say the danceability scores are different.
+
+In summary, this code is a systematic way of comparing danceability scores between tracks with different artist counts using a statistical method called a two-sample t-test. The goal is to determine if there is a significant difference in danceability scores between tracks with one artist and those with two artists.
+
+
+```{r}
+# Generate simulated data
+set.seed(123) 
+song_data <- data.frame(
+  bpm = sample(60:180, 100, replace=TRUE),
+  streams = rpois(100, 500) 
+)
+
+# Divide into groups 
+song_data$group <- ifelse(song_data$bpm < 100, "slow", "fast")
+
+# Compare means
+t.test(streams ~ group, data = song_data)
+
+# Check normality assumption
+shapiro.test(song_data$streams[song_data$group=="slow"])
+shapiro.test(song_data$streams[song_data$group=="fast"])
+
+# Chi-squared test on categorical variable  
+song_data$genre <- sample(c("pop", "rock", "hiphop"), 100, replace=TRUE)
+chisq.test(table(song_data$genre, song_data$group))
+```
+
+The code first generates simulated data with 100 observations that includes a tempo column (bpm) and stream count column (streams). Tempo values are randomly sampled between 60-180 bpm, while streams are randomly drawn from a Poisson distribution with mean 500.   
+
+It then divides the songs into 'slow' and 'fast' groups based on a bpm threshold of 100. A t-test is used to compare the mean streams between the two groups. The Shapiro-Wilk test checks the normality assumption required for valid inference from the t-test.   
+
+Finally, a categorical genre column is randomly simulated, and a chi-squared test is used to test for independence between genre and the tempo groups.   

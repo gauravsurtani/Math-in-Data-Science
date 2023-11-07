@@ -1,0 +1,142 @@
+---
+title: "Top Songs of Spotify - 2023"
+author: "Gaurav Surtani"
+date: "2023-10-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Read data from CSV file:
+```{r}
+data <- read.csv("spotify-2023.csv")
+```
+
+### Print the first few rows of the data:
+```{r}
+head(data)
+```
+
+### Know the dimensions:
+```{r}
+dim(data)
+```
+
+### Rows and columns:
+```{r}
+nrow(data)
+ncol(data)
+```
+
+
+### Checking for data quality issues:
+```{r}
+summary(data)
+str(data)
+head(data)
+```
+
+```{r}
+missing_values <- sum(is.na(data))
+cat("Number of missing values:", missing_values, "\n")
+
+null_values <- sum(is.null(data))
+cat("Number of null values:", null_values, "\n")
+cat("Proportion of missing values:", mean(is.na(data)), "\n")
+```
+
+### Check the new dimensions of the cleaned data:
+```{r}
+fire_data <- na.omit(data)
+dim(fire_data)
+```
+
+### Cleared the data with NA values
+```{r}
+missing_values_cleaned <- sum(is.na(fire_data))
+missing_values_cleaned
+```
+ 
+
+#Introduction: 
+I have chosen the Spotify dataset as it provides a comprehensive list of the most famous songs of 2023, along with a wealth of features about each song. I am curious to explore various aspects of popular music, including the impact of artists, the influence of song attributes on popularity, and how songs perform across different streaming platforms.  
+
+## Proposal for Spotify Dataset Analysis
+
+### Introduction
+
+I have chosen the Spotify dataset as it provides a comprehensive list of the most famous songs of 2023, along with a wealth of features about each song. I am curious to explore various aspects of popular music, including the impact of artists, the influence of song attributes on popularity, and how songs perform across different streaming platforms.
+
+### Data
+
+- **Data Source**: The dataset is sourced from Kaggle[Link](https://www.kaggle.com/datasets/nelgiriyewithana/top-spotify-songs-2023/data) and Spotify and contains information about popular songs in 2023.
+
+- **Data Collection**: The data was collected through a combination of sources, including Spotify's internal databases, music charts, and streaming statistics, through web scraping or API calls to gather additional information done in Kaggle
+
+- **Cases**: Each row in the dataset represents a unique song. It provides detailed information about each song's attributes, popularity, and presence on various music platforms.
+
+- **Variables**: (Referenced from Kaggle variable list)
+
+   - `track_name`: Name of the song.
+   - `artist(s)_name`: Name of the artist(s) of the song.
+   - `artist_count`: Number of artists contributing to the song.
+   - `released_year`: Year when the song was released.
+   - `released_month`: Month when the song was released.
+   - `released_day`: Day of the month when the song was released.
+   - `in_spotify_playlists`: Number of Spotify playlists the song is included in.
+   - `in_spotify_charts`: Presence and rank of the song on Spotify charts.
+   - `streams`: Total number of streams on Spotify.
+   - `in_apple_playlists`: Number of Apple Music playlists the song is included in.
+   - `in_apple_charts`: Presence and rank of the song on Apple Music charts.
+   - `in_deezer_playlists`: Number of Deezer playlists the song is included in.
+   - `in_deezer_charts`: Presence and rank of the song on Deezer charts.
+   - `in_shazam_charts`: Presence and rank of the song on Shazam charts.
+   - `bpm`: Beats per minute, a measure of song tempo.
+   - `key`: Key of the song.
+   - `mode`: Mode of the song (major or minor).
+   - `danceability_%`: Percentage indicating how suitable the song is for dancing.
+   - `valence_%`: Positivity of the song's musical content.
+   - `energy_%`: Perceived energy level of the song.
+   - `acousticness_%`: Amount of acoustic sound in the song.
+   - `instrumentalness_%`: Amount of instrumental content in the song.
+   - `liveness_%`: Presence of live performance elements.
+   - `speechiness_%`: Amount of spoken words in the song.
+
+- **Type of Study**: This dataset is observational, as it provides information about songs and their attributes without any controlled experiments.
+
+### Data Quality
+
+I will perform the following checks:
+
+- Check for missing data 
+- Check any duplicates 
+
+
+### Potential Use Cases ( Referenced : Kaggle Dataset )
+1. **Music analysis**: Explore patterns in audio features to understand trends and preferences in popular songs.
+
+2. **Platform comparison**: Compare the song's popularity across different music platforms.
+
+3. **Artist impact**: Analyze how artist involvement and attributes relate to a song's success.
+
+4. **Temporal trends**: Identify any shifts in music attributes and preferences over time.
+
+5. **Cross-platform presence**: Investigate how songs perform across different streaming services.
+
+Overall, this analysis aims to provide valuable insights into the world of popular music in 2023 and help stakeholders make informed decisions about their music-related endeavors.
+
+
+##In Conclusion:
+The Spotify dataset meets the condition as it includes:
+
+1. **Categorical Variable**:
+   - `track_name`: Name of the song.
+
+2. **Continuous Numerical Variables**:
+   - `danceability_%`: Percentage indicating how suitable the song is for dancing.
+   - `valence_%`: Positivity of the song's musical content.
+   - `energy_%`: Perceived energy level of the song.
+   - `acousticness_%`: Amount of acoustic sound in the song.
+   - `instrumentalness_%`: Amount of instrumental content in the song.

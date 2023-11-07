@@ -1,0 +1,140 @@
+---
+title: "FA 23 ISE 201 Probability Homework"
+author: "Gaurav Surtani"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+```
+
+## QUESTION 1
+
+Historical data indicate that the starting salary for a new graduate in a leading tech company can be modeled using a Normal distribution with mean $90,000 and standard deviation $20,000. Suppose that second-year salaries increase by exactly 20%. Also, suppose that the bonus each year can be modeled using a Normal distribution with mean $25,000 and standard deviation $5,000. Suppose that the bonus is independent of the initial salary (and is also independent of the annual salary increase).
+
+> What is the expected annual compensation (salary plus bonus) for a new hire?
+
+```{r}
+salary_mean <- 90000
+salary_std_dev <- 20000
+
+bonus_mean <- 25000
+bonus_std_dev <- 5000
+
+new_hire_salary <- salary_mean + bonus_mean
+new_hire_salary
+```
+
+**The reason for this would be the new hire expected the total of the mean salary and the mean bonus.**
+
+> What is the standard deviation of the annual compensation for a new hire?
+
+```{r}
+
+new_hire_salary_deviation <- sqrt(salary_std_dev^2 + bonus_std_dev^2)
+new_hire_salary_deviation
+
+```
+
+**The squareroot of sum of the squares of salary and bonuses help us understand the standard deviation of the total compensation. Since the starting salary and the bonus are independent, we use variance of the sum of independent random variables is the sum of their variances.**
+
+> What is the expected annual compensation for an employee after completing one year at the firm, i.e., just after the salary increase is announced?
+
+```{r}
+
+oneyear_salary <- (1 + (20/100)) * salary_mean
+oneyear_salary <- oneyear_salary + bonus_mean
+oneyear_salary
+
+```
+
+**To find the expected annual compensation of an employee after completing one year at the firm, we need to calculate the mean of the sum of the increased salary and the bonus. Given that the second-year salary increases by 20%, the mean of the increased salary is 1.2 * $90,000 = $108,000. Since the bonus is independent of the increased salary, we can add the mean of the bonus, which is $25,000. Therefore, the expected annual compensation after completing one year is $108,000 + $25,000 = $133,000**
+
+> What is the standard deviation of an employee's annual compensation for an employee after completing one year at the firm, i.e., just after the salary increase is announced?
+
+```{r}
+
+oneyear_sd <- sqrt(salary_std_dev^2 + bonus_std_dev^2)
+oneyear_sd
+
+```
+
+**I calculated the standard deviation of the sum of the increased salary and the bonus. The standard deviation of the increased salary is still $20,000 since the increase is applied to the starting salary.**
+
+> What is the probability that an employee's annual compensation after completing one year in the firm, i.e., just after the salary increase is announced, will exceed $140,000?
+
+```{r}
+
+z_score <- (140000 - oneyear_salary) / oneyear_sd
+prob_exceed_140k <- pnorm(z_score)
+cat("Z-score:", z_score, "\n")
+cat("Probability that annual compensation exceeds $140,000:", prob_exceed_140k, "\n")
+
+```
+
+**I standardize the distribution using the Z-score formula and then find the corresponding probability normal distribution laws, That is, for 0.3395499 the value is0.6329, which can be approximated as 63.29%. **
+
+------
+## Question 2
+
+ An engineering statistics class has 40 students: 60% are EM, 10% are IE and 30% are AI. A sample of 4 students is selected randomly without replacement for a project team. Let X and Y denote the number of IE and AI majors in the sample, respectively.
+
+> 1. Determine $f_{XY}(X, Y)$ or joint probability distribution of $X$ and $Y$
+
+```{r}
+prob_EM <- 0.6
+prob_IE <- 0.1
+prob_AI <- 0.3
+
+# Number of students
+total_students <- 40
+
+# Sample size
+sample_size <- 4
+
+# Possible combinations of IE and AI majors in the sample
+combinations <- expand.grid(IE = 0:4, AI = 0:4)
+
+# Calculate joint probabilities
+combinations$probability <- apply(combinations, 1, function(row) 
+{
+  choose(prob_IE * total_students, row["IE"]) * 
+    choose(prob_AI * total_students, row["AI"]) * 
+    choose(prob_EM * total_students, sample_size - row["IE"] - row["AI"]) /   choose(total_students, sample_size)
+})
+
+# Display the joint probability distribution
+combinations
+
+```
+
+**We calculate the joint probability distribution for all possible combinations of IE and AI majors in the sample. The probability is computed using the multinomial distribution formula, considering the given probabilities for IE, AI, and EM majors.**
+
+> 2. Determine $f_X(x)$ or marginal probability distribution of $X$
+
+```{r}
+# Calculate marginal probability distribution for X (IE majors)
+marginal_X <- tapply(combinations$probability, combinations$IE, sum)
+
+# Display the marginal probability distribution for X
+marginal_X
+```
+
+**We calculate the marginal probability distribution for X (IE majors) by summing the joint probabilities over all possible values of Y (AI majors). The result is a table showing the probabilities for different numbers of IE majors in the sample.**
+
+> 3. Determine $E(X)$
+
+```{r}
+# Calculate expected value for X (IE majors)
+expected_X <- sum(as.numeric(names(marginal_X)) * marginal_X)
+
+# Display the expected value for X
+expected_X
+
+```
+
+**We calculate the expected value for X (IE majors) by summing the product of each value of X and its probability.The result is the expected number of IE majors in the sample.**
+
