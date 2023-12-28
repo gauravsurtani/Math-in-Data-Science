@@ -7,6 +7,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(tidyr)
 ```
 
 ### Read data from CSV file:
@@ -88,6 +92,19 @@ if (sample_hypothesis_result$p.value < 0.05) {
 }
 ```
 
+```{r}
+spotify_data$streams <- as.numeric(as.character(spotify_data$streams))
+
+ggplot(spotify_data, aes(x = streams)) +
+  geom_histogram(fill = "blue", bins = 30, alpha = 0.7) +
+  geom_vline(xintercept = 150000000, color = "red", linetype = "dashed") +
+  labs(title = "Histogram of Streams with Constant Value",
+       x = "Streams",
+       y = "Frequency",
+       caption = "Red dashed line represents constant value (150 million)")
+
+```
+
 We want to know if the average number of streams for music tracks is significantly different from 150 million streams. We use a statistical method called a one-sample t-test for this.
 
 - **Null Hypothesis:** The average streams for tracks is equal to 150 million.
@@ -97,7 +114,7 @@ We collect data on the number of streams for tracks and perform the t-test. If t
 
 A lower p-value (typically < 0.05) suggests strong evidence against the null hypothesis, leading to its rejection. It indicates that observed data is unlikely under the assumption of the null hypothesis being true. A higher p-value (typically ≥ 0.05) suggests a lack of strong evidence against the null hypothesis, leading to the failure to reject it. It means the observed data is reasonably likely under the assumption of the null hypothesis.
 
-### Understanding the Two-Sample T-Test
+### Two-Sample T-Test
 
 **Objective:** We are comparing the danceability scores between two groups of tracks. Group 1 has tracks by artists with 1 count, and Group 2 has tracks by artists with 2 counts.
 
@@ -130,9 +147,32 @@ if (any(is.na(group1)) || any(is.na(group2))) {
 ```{r}
 # Perform two-sample t-test
 t_result <- t.test(group1, group2)
+
+# Filter the data to include only artist counts of 1 and 2
+filtered_data <- data[data$artist_count %in% c(1, 2), ]
+
+# Create the boxplot with the filtered data
+ggplot(filtered_data, aes(x = as.factor(artist_count), y = danceability_., fill = as.factor(artist_count))) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Danceability Scores by Artist Count",
+       x = "Artist Count",
+       y = "Danceability") +
+  ylim(0, 100)
+
+
 ```
 
 **Explanation:** This is the heart of the analysis. We're using a statistical test called a two-sample t-test to compare the average danceability scores between 'group1' and 'group2.' The result (stored in 't_result') will provide information on whether the difference in danceability scores between the two groups is statistically significant.
+
+```{r}
+ggplot(data, aes(x = as.factor(artist_count), y = danceability_., fill = as.factor(artist_count))) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Danceability Scores by Artist Count",
+       x = "Artist Count",
+       y = "Danceability") +
+  ylim(0,100)
+
+```
 
 ```{r}
 # Display test results
@@ -186,7 +226,29 @@ song_data$genre <- sample(c("pop", "rock", "hiphop"), 100, replace=TRUE)
 chisq.test(table(song_data$genre, song_data$group))
 ```
 
-The code first generates simulated data with 100 observations that includes a tempo column (bpm) and stream count column (streams). Tempo values are randomly sampled between 60-180 bpm, while streams are randomly drawn from a Poisson distribution with mean 500.   
+The code first generates simulated data with 100 observations that includes a tempo column (bpm) and stream count column (streams). Tempo values are randomly sampled between 60-180 bpm, while streams are randomly drawn from a Poisson distribution with mean 500. 
+
+```{r}
+ggplot(song_data, aes(x = group, y = streams, fill = group)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Streams by Song Tempo Group",
+       x = "Tempo Group",
+       y = "Streams")
+
+ggplot(song_data, aes(x = bpm, y = streams, color = group)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Streams vs. BPM by Tempo Group",
+       x = "BPM",
+       y = "Streams")
+
+ggplot(song_data, aes(x = group, fill = genre)) +
+  geom_bar(position = "fill") +
+  labs(title = "Proportion of Genres in Each Tempo Group",
+       x = "Tempo Group",
+       y = "Proportion")
+
+
+```
 
 It then divides the songs into 'slow' and 'fast' groups based on a bpm threshold of 100. A t-test is used to compare the mean streams between the two groups. The Shapiro-Wilk test checks the normality assumption required for valid inference from the t-test.   
 

@@ -1,0 +1,637 @@
+---
+title: "Sopity Data Analysis (2023 Edition)"
+author: "Gaurav Surtani"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(reshape2)
+library(corrplot)
+library(ggcorrplot)
+library(factoextra)
+```
+---
+
+# Exploring Spotify Music Trends
+## Introduction
+
+I'm interested in understanding what musical attributes and trends are associated with popularity and success on Spotify. Specifically, I want to explore how release date, tempo, danceability, energy, etc. relate to metrics like streams and playlist additions. This could shed light on what current listeners value in music.   
+I have chosen the Spotify dataset as it provides a comprehensive list of the most famous songs of 2023. I am curious to explore various aspects of popular music and how songs perform across different streaming platforms.
+
+### Why do you care? Why should others care? 
+I really want to gauge what components of a music are required for it to be a good song. I want to know how many people just choose a song looking by just the artist. Also, I want to compare how a song with similar traits can vary so much.
+
+Other's should care because maybe, just maybe, we are missing out on some really good songs, from less famous artists and we may never even know. Give a chance to the underdogs in music. Instead of listening to the same old famous musicians, use maths and statistics from this data to help find out some unknown songs that might match your current favourites.
+
+---
+
+## Data 
+
+### Summary
+The data comes from a CSV file containing details on songs released in 2022-2023 that appeared on Spotify charts and playlists. It has 950+ rows and 23 columns, with each row representing a song.   
+
+**Key variables i want to focus on in this dataset is as belows**:
+- release_date: date song was released 
+- streams: total streams on Spotify
+- playlist_adds: number of Spotify playlists song was added to
+- bpm: beats per minute
+- danceability: Spotify danceability score 
+- energy: Spotify energy score
+- key: song key 
+- mode: major/minor
+
+The data was web scraped and compiled in January 2023.
+
+- **Data Source**: The dataset is sourced from Kaggle [Link](https://www.kaggle.com/datasets/nelgiriyewithana/top-spotify-songs-2023/data) and Spotify and contains information about popular songs in 2023.
+
+- **Data Collection**: The data was collected through a combination of sources, including Spotify's internal databases, music charts, and streaming statistics, through web scraping or API calls to gather additional information done in Kaggle
+
+- **Cases**: Each row in the dataset represents a unique song. It provides detailed information about each song's attributes, popularity, and presence on various music platforms.
+
+- **Variables**: (Referenced from Kaggle variable list)
+
+   - `track_name`: Name of the song.
+   - `artist(s)_name`: Name of the artist(s) of the song.
+   - `artist_count`: Number of artists contributing to the song.
+   - `released_year`: Year when the song was released.
+   - `released_month`: Month when the song was released.
+   - `released_day`: Day of the month when the song was released.
+   - `in_spotify_playlists`: Number of Spotify playlists the song is included in.
+   - `in_spotify_charts`: Presence and rank of the song on Spotify charts.
+   - `streams`: Total number of streams on Spotify.
+   - `in_apple_playlists`: Number of Apple Music playlists the song is included in.
+   - `in_apple_charts`: Presence and rank of the song on Apple Music charts.
+   - `in_deezer_playlists`: Number of Deezer playlists the song is included in.
+   - `in_deezer_charts`: Presence and rank of the song on Deezer charts.
+   - `in_shazam_charts`: Presence and rank of the song on Shazam charts.
+   - `bpm`: Beats per minute, a measure of song tempo.
+   - `key`: Key of the song.
+   - `mode`: Mode of the song (major or minor).
+   - `danceability_%`: Percentage indicating how suitable the song is for dancing.
+   - `valence_%`: Positivity of the song's musical content.
+   - `energy_%`: Perceived energy level of the song.
+   - `acousticness_%`: Amount of acoustic sound in the song.
+   - `instrumentalness_%`: Amount of instrumental content in the song.
+   - `liveness_%`: Presence of live performance elements.
+   - `speechiness_%`: Amount of spoken words in the song.
+
+- **Type of Study**: This dataset is observational, as it provides information about songs and their attributes without any controlled experiments.
+
+### Read data from CSV file:
+```{r Read Data.}
+data <- read.csv("spotify-2023.csv")
+head(data)
+```
+
+### Know the dimensions:
+```{r Know the Data}
+dim(data)
+```
+
+### Check the new dimensions of the cleaned data:
+```{r}
+spotify_data <- na.omit(data)
+dim(spotify_data)
+```
+
+---
+
+# Exploratory Data Analysis:    
+
+## Visualizations:    
+
+## Histograms:    
+
+I chose to start with Histograms of Streams and Playlist Additions because:   
+- They provide an overview of the data distribution. You can immediately see if the data is skewed, has a normal distribution, or has multiple modes.   
+- They help identify outliers.If there's a long tail, that could suggest the presence of outliers. We may have to remove some outliers at the end because they might possibly skew the results towards them.   
+- They are a precursor to data cleaning. If you spot any anomalies, such as unexpected spikes that don't correspond to the real-world behavior of the data, this might indicate errors or noise in the data collection process that need to be addressed.    
+
+### 1. Histograms for Streams in millions and Playlist Adds:
+
+**We scale down to the stream to in millions,convert to int and clean-up NA's to improve data clarity**   
+
+```{r}
+spotify_data$streams <- as.numeric(as.character(spotify_data$streams))
+spotify_data <- spotify_data[!is.na(spotify_data$streams), ]
+spotify_data$streams_in_millions <- spotify_data$streams/1000000
+summary(spotify_data$streams_in_millions)
+
+
+ggplot(spotify_data, aes(x = streams_in_millions)) +
+  geom_histogram(binwidth = 100, fill = "blue", color = "gray") +
+  labs(title = "Distribution of Songs Streamed")
+```
+
+##### **Inference**: Most of the songs that are streamed do not cross the 1000 million mark. This graph shows the maximum number of songs lie within the 0-500 million streams mark.
+
+```{r}
+ggplot(spotify_data, aes(x = in_spotify_playlists)) +
+  geom_histogram(binwidth = 1000, fill = "green", color = "black") +
+  labs(title = "Distribution of Songs added in playlists")
+```
+
+##### **Inference**: Most of the songs are added to 0-5000 spotify playlists, very few songs that perform extremely well are added in over 20,000 playlists.
+  
+1. **Distribution of Songs Streamed**:
+   - The histogram for `Streams` is **right-skewed**. Most songs have a relatively small number of streams (in millions), while a few songs have a very high number of streams.
+   - There is a noticeable peak in the distribution, which again suggests that a higher number of songs have fewer streams.
+   - The long tail to the right indicates that while most songs don't achieve extremely high stream counts, there are a select few that do.
+
+2. **Distribution of Playlist Adds**:
+   - The histogram for `Songs added in playlists` shows a **heavily right-skewed** distribution. This indicates that a large number of songs have a relatively small number of playlist additions, while only a few songs have a very high number of additions.
+   - The peak at the left suggests that the most common number of playlist additions is low, near zero.
+   - There are a few outliers with a very high number of playlist adds, but these are exceptional.
+   - The distribution suggests that it is relatively rare for songs to be added to a large number of playlists.
+
+
+## ScatterPlots:
+
+### 1. Song Added to Playlist  vs. Energy Level of the song:
+```{r}
+spotify_data_lessthan10000_playlist <- spotify_data %>% 
+  filter(in_spotify_playlists <= 10000)
+
+ggplot(spotify_data_lessthan10000_playlist, aes(x = energy_., y = in_spotify_playlists)) +
+  geom_point(alpha = 0.75, color = "blue") +
+  labs(title = "Song Added to Playlist  vs. Energy Level of the song",
+       x = "Energy Level",
+       y = "Playlists that song is present in")+
+  xlim(0,100)
+```
+
+##### **Inference**:
+**Song Added to Playlist vs. Energy Level of the song**:
+   - The plot shows a wide spread of points, suggesting *there isn't a clear linear relationship* between the energy level of songs and the number of playlists they appear in.
+   - While songs of all energy levels appear to have a chance of being added to a range of playlists, there is a concentration of songs with lower playlist presence, indicating that most songs, regardless of energy, tend to have a lower number of playlist adds.
+   - There are some songs with high energy levels that also have a higher number of playlist adds, but these are not the majority, indicating that high energy alone does not guarantee a higher presence in playlists.
+   
+
+### 2. Danceability of the Song vs. Tempo:
+```{r}
+ggplot(spotify_data, aes(x = danceability_., y = bpm )) +
+  geom_point(alpha = 0.6, color = "purple") +
+  labs(title = "Danceability of the Song vs. Tempo",
+       x = "Danceability of the Song",
+       y = "Tempo (BPM)")+
+  xlim(0, 100) 
+```
+
+##### **Inference**:
+**Danceability of the Song vs. Tempo**:
+   - This plot shows a broad and relatively uniform distribution of points across the range of danceability scores between 25 and 80.
+   - There is danceability on bpm in range of 80 - 180. The spread of BPM across danceability scores suggests that songs with a wide range of tempos can be danceable, and high danceability is not confined to a narrow tempo range.
+   - There doesn't seem to be a strong correlation between danceability and tempo based on this plot, indicating that tempo might not be a defining factor in danceability, or at least that danceable songs can come at a variety of tempos.
+   
+
+## Point Range Plot:
+
+### 1. Average Tempo by Musical Key:    
+
+Which songs have highest tempo based on the musical key. We answer these type of questions using this plot.
+By using this plot, you are able to present a clear and statistically grounded picture of how tempo varies by musical key in the songs from your Spotify data. It’s a more nuanced view than simply plotting the raw data or the means without confidence intervals, as it takes into account the precision of your estimates.
+
+```{r}
+spotify_data_filtered_emptyKey <- spotify_data %>%
+  filter(!is.na(key) & !is.na(bpm) & bpm != 0 & key!='')
+
+ggplot(spotify_data_filtered_emptyKey, aes(x = as.factor(key), y = bpm)) +
+  geom_pointrange(stat = "summary", fun.data = "mean_cl_normal", color = "blue") +
+  labs(title = "Average Tempo by Musical Key",
+       x = "Musical Key",
+       y = "Tempo (BPM)")
+```
+
+##### **Inference**:
+**Average Tempo by Musical Key:** The graph suggests a stable trend in song tempos across musical keys, with average BPMs closely grouped between 120 and 130. Variability within each key is moderate, and no particular key is associated with a distinctly faster or slower tempo. This indicates that a song's key is likely not a major factor in determining its tempo.
+
+The `geom_pointrange` plot you have created is effectively a way to visualize the mean tempo (`bpm`) for songs in each musical key (`key`) along with the confidence intervals for those means.
+
+### What Questions This Plot Answers:
+   - **What is the average tempo for songs in each musical key?** You can compare the central tendency (mean bpm) across different keys.
+   - **How much variability is there in the tempo of songs within each key?** The length of the vertical lines (the point ranges) indicates the confidence interval for the mean, which reflects variability. A longer line means more variability; a shorter line means less.
+   - **Are there significant differences in tempo between keys?** If the confidence intervals for two keys don’t overlap, it suggests a significant difference in the average tempos between those keys.
+   - **Are certain keys associated with faster or slower tempos?** This can be seen by the position of the point on the y-axis (tempo).
+
+---
+
+## Hypothesis Testing
+### - Null Hypothesis:
+(Referred to this page for getting average streams of songs on Spotify)[Spotify Data](https://www.demandsage.com/spotify-stats/)
+```{r}
+constant_value <- 150000000  # Got the value from the link above to check the numbers of times song was played in the year 2023.
+
+# Remove missing values from 'streams'
+streams <- data$streams[!is.na(data$streams)]
+streams <- as.numeric(streams[!is.na(streams) & grepl("^\\d+$", streams)])
+# Check if there are still missing values
+if (any(is.na(streams))) {
+  stop("There are still missing values in 'streams'. Please handle missing values.")
+}
+
+# Perform one-sample t-test
+sample_hypothesis_result <- t.test(streams, mu = constant_value)
+
+# Display test results
+print(sample_hypothesis_result)
+
+# Check if null hypothesis is rejected
+if (sample_hypothesis_result$p.value < 0.05) {
+  cat("Reject the null hypothesis\n")
+} else {
+  cat("Fail to reject the null hypothesis\n")
+}
+```
+
+```{r}
+spotify_data$streams <- as.numeric(as.character(spotify_data$streams))
+
+ggplot(spotify_data, aes(x = streams)) +
+  geom_histogram(fill = "blue", bins = 30, alpha = 0.7) +
+  geom_vline(xintercept = 150000000, color = "red", linetype = "dashed") +
+  labs(title = "Histogram of Streams with Constant Value",
+       x = "Streams",
+       y = "Frequency",
+       caption = "Red dashed line represents constant value (150 million)")
+
+```
+
+We want to know if the average number of streams for music tracks is significantly different from 150 million streams. We use a statistical method called a one-sample t-test for this.
+
+- **Null Hypothesis:** The average streams for tracks is equal to 150 million.
+- **Alternative Hypothesis:** The average streams for tracks is not equal to 150 million.
+
+We collect data on the number of streams for tracks and perform the t-test. If the p-value is less than 0.05, we reject the null hypothesis, suggesting that there's evidence the average number of streams is different from 150 million.
+
+A lower p-value (typically < 0.05) suggests strong evidence against the null hypothesis, leading to its rejection. It indicates that observed data is unlikely under the assumption of the null hypothesis being true. A higher p-value (typically ≥ 0.05) suggests a lack of strong evidence against the null hypothesis, leading to the failure to reject it. It means the observed data is reasonably likely under the assumption of the null hypothesis.
+
+### - Two-Sample T-Test
+
+**Objective:** We are comparing the danceability scores between two groups of tracks. Group 1 has tracks by artists with 1 count, and Group 2 has tracks by artists with 2 counts.
+
+```{r}
+# Assuming 'danceability_.' is the variable of interest
+# Assuming 'Group1' and 'Group2' are the two groups in your dataset
+group1 <- data[data$artist_count == 1, "danceability_."]
+group2 <- data[data$artist_count == 2, "danceability_."]
+```
+
+**Explanation:**: We want to check what is differenece in danceability% of a song, when a song has 1 artist or 2 artists.
+
+```{r}
+# Remove missing values from both groups
+group1 <- group1[!is.na(group1)]
+group2 <- group2[!is.na(group2)]
+```
+
+**Explanation:** Data cleanup done for both groups.
+
+```{r}
+# Check if there are still missing values
+if (any(is.na(group1)) || any(is.na(group2))) {
+  stop("There are still missing values in 'danceability_.'. Please handle missing values.")
+}
+```
+
+**Explanation:** We perform a check to ensure that after removing missing values, both groups are free of any missing data. If there are still missing values, we stop and ask to handle them because missing data can affect the accuracy of our analysis.
+
+```{r}
+# Perform two-sample t-test
+t_result <- t.test(group1, group2)
+
+# Filter the data to include only artist counts of 1 and 2
+filtered_data <- data[data$artist_count %in% c(1, 2), ]
+
+# Create the boxplot with the filtered data
+ggplot(filtered_data, aes(x = as.factor(artist_count), y = danceability_., fill = as.factor(artist_count))) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Danceability Scores by Artist Count",
+       x = "Artist Count",
+       y = "Danceability") +
+  ylim(0, 100)
+
+
+```
+
+**Explanation:** This is the heart of the analysis. We're using a statistical test called a two-sample t-test to compare the average danceability scores between 'group1' and 'group2.' The result (stored in 't_result') will provide information on whether the difference in danceability scores between the two groups is statistically significant.
+
+```{r}
+ggplot(data, aes(x = as.factor(artist_count), y = danceability_., fill = as.factor(artist_count))) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Danceability Scores by Artist Count",
+       x = "Artist Count",
+       y = "Danceability") +
+  ylim(0,100)
+
+```
+
+**From the above chart we can that the number of artists does play a role in danceability score of the song, which indirectly affects the amount of times a song has been streamed.**
+
+```{r}
+ggplot(spotify_data, aes(x = as.factor(artist_count), y = streams_in_millions, fill = as.factor(artist_count))) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Difference in Songs stream based on Number of artist's in it",
+       x = "Artist Count",
+       y = "Streams In Millions")
+```
+
+```{r}
+# Display test results
+print(t_result)
+```
+
+**Explanation:** We print out the results of the t-test, which include statistics such as the t-value and p-value. These values help us make decisions about whether the danceability scores are significantly different between the two groups.   
+t: Measures the size and direction of the difference between groups.    
+df (degrees of freedom): Influences the shape of the t-distribution.    
+p-value: Probability of observing the t-statistic, indicating evidence against the null hypothesis.   
+
+
+#### Checking Rejection Criteria
+
+```{r}
+# Check if null hypothesis is rejected
+if (t_result$p.value < 0.05) {
+  cat("Reject the null hypothesis\n")
+} else {
+  cat("Fail to reject the null hypothesis\n")
+}
+```
+
+**Explanation:** Based on the p-value (a measure of evidence against the null hypothesis), we make a decision. 
+**If the p-value is less than 0.05 (a commonly chosen significance level), we reject the null hypothesis.This means we have evidence that the danceability scores are significantly different between the two groups.**  
+If the p-value is greater than 0.05, we fail to reject the null hypothesis, suggesting that there isn't enough evidence to say the danceability scores are different.
+
+In summary, this code is a systematic way of comparing danceability scores between tracks with different artist counts using a statistical method called a two-sample t-test. The goal is to determine if there is a significant difference in danceability scores between tracks with one artist and those with two artists.
+
+
+```{r}
+# Generate simulated data
+set.seed(123) 
+song_data <- data.frame(
+  bpm = sample(60:180, 100, replace=TRUE),
+  streams = rpois(100, 500) 
+)
+
+# Divide into groups 
+song_data$group <- ifelse(song_data$bpm < 100, "slow", "fast")
+
+# Compare means
+t.test(streams ~ group, data = song_data)
+
+# Check normality assumption
+shapiro.test(song_data$streams[song_data$group=="slow"])
+shapiro.test(song_data$streams[song_data$group=="fast"])
+
+# Chi-squared test on categorical variable  
+song_data$genre <- sample(c("pop", "rock", "hiphop"), 100, replace=TRUE)
+chisq.test(table(song_data$genre, song_data$group))
+```
+
+The code first generates simulated data with 100 observations that includes a tempo column (bpm) and stream count column (streams). Tempo values are randomly sampled between 60-180 bpm, while streams are randomly drawn from a Poisson distribution with mean 500. 
+
+```{r}
+ggplot(song_data, aes(x = group, y = streams, fill = group)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Streams by Song Tempo Group",
+       x = "Tempo Group",
+       y = "Streams")
+
+ggplot(song_data, aes(x = bpm, y = streams, color = group)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Streams vs. BPM by Tempo Group",
+       x = "BPM",
+       y = "Streams")
+
+ggplot(song_data, aes(x = group, fill = genre)) +
+  geom_bar(position = "fill") +
+  labs(title = "Proportion of Genres in Each Tempo Group",
+       x = "Tempo Group",
+       y = "Proportion")
+
+
+```
+
+It then divides the songs into 'slow' and 'fast' groups based on a bpm threshold of 100. A t-test is used to compare the mean streams between the two groups. The Shapiro-Wilk test checks the normality assumption required for valid inference from the t-test.   
+
+Finally, a categorical genre column is randomly simulated, and a chi-squared test is used to test for independence between genre and the tempo groups.   
+
+---
+
+## PCA Background
+### Checking the top 10 Artists
+```{r Top 10 Artists.}
+spotify_data_df <- as.data.frame(spotify_data)
+spotify_data_top_10_artists = spotify_data_df[, c('artist.s._name', 'track_name')]
+
+spotify_data_artists_songs <- spotify_data_df %>%
+  group_by(artist.s._name) %>%
+  summarise(song_count = n()) %>%
+  arrange(desc(song_count))
+
+spotify_data_top_10_artists_songs <- head(spotify_data_artists_songs,10)
+
+ggplot(spotify_data_top_10_artists_songs, aes(x = reorder(artist.s._name, song_count), y=song_count)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  theme_minimal() +
+  labs(title = "Top 10 Artist with Most songs", x = "Artists", y="Number of Songs Streamed") +
+  coord_flip()
+
+```
+
+**Question: What makes a good artist? What makes their music better than the rest?**      
+Using the PCA method we shall figure out what component of music is the principal component for deciding whether a musical piece will be streamed higher or not.
+
+
+## PCA Methodoloy
+### Checking for Correlation Features - Exploring All Data
+```{r PCA All.}
+numeric_columns <- sapply(spotify_data, is.numeric)
+spotify_data_numeric <- spotify_data[, numeric_columns]
+
+spotify_data_scaled_all <- as.data.frame(scale(spotify_data_numeric))
+
+# Calculating the correlation matrix
+c_m_all <- cor(spotify_data_scaled_all, use = "complete.obs") # Handles missing values, if any
+
+# Using corrplot for correlation heatmap
+corrplot(c_m_all, method = "circle", type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 90, 
+         title = "Features Correlations Heatmap", 
+         mar = c(0,0,2,0), # Adjust margin for title space
+         col = colorRampPalette(c("red", "lightblue", "darkblue"))(200)) 
+```
+
+##### **Inference**:
+**All numerical columns correlation:** From this heatmap, we can see that all playlist ones are interdependent, it means that that if its in more apple playlists, it will mostly be in spotify playlist as well. 
+The Streams is dependendent on the number of playlists it is part off.
+
+### Focus on the musical Features - Explore only the musical part
+*Removed in_playlists,in_streams cause they do not help in finding a good sync between 2 components of music*
+```{r PCA}
+
+spotify_data_scaled <- as.data.frame(scale(spotify_data[, c('bpm', 'danceability_.', 'valence_.', 'energy_.', 'acousticness_.', 'instrumentalness_.', 'liveness_.', 'speechiness_.')]))
+
+# Selecting the relevant features
+features <- spotify_data_scaled[, c('bpm', 'danceability_.', 'valence_.', 'energy_.', 'acousticness_.', 'instrumentalness_.', 'liveness_.', 'speechiness_.')]
+
+# Calculating the correlation matrix
+c_m <- cor(features, use = "complete.obs") # Handles missing values, if any
+
+# Using corrplot for correlation heatmap
+corrplot(c_m, method = "number", type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45, 
+         title = "Features Correlations Heatmap", 
+         mar = c(0,0,1,0), # Adjust margin for title space
+         col = colorRampPalette(c("red", "lightblue", "darkblue"))(200)) 
+
+```
+
+#### Firstly,we scale the data so that we can form corrleration matrix using  scale() function.
+
+```{r PCA Analysis - Data Normalization}
+spotify_data_nomralized <- scale(spotify_data[, c('bpm', 'danceability_.', 'valence_.', 'energy_.', 'acousticness_.', 'instrumentalness_.', 'liveness_.', 'speechiness_.')])
+head(spotify_data_nomralized)
+```
+
+#### Compute the correlation matrix
+Even though the covariance matrix is stated, the correlation also can be used, and can be computed using the cor() function from the corrr package. The ggcorrplot() can be applied then for better visualization.
+
+```{r PCA - Calcualte Corr Matrix}
+spotify_correlation_matrx <- cor(spotify_data_nomralized)
+ggcorrplot(spotify_correlation_matrx)
+```
+
+**Inference:**
+The result of the correlation matrix can be interpreted as follow: 
+- The higher the value, the most positively correlated the two variables are.
+- The closer the value to -1, the most negatively correlated they are.
+
+#### Compute the correlation matrix
+
+```{r PCA Analysis - PCA Matrix}
+spotify_data.pca <- princomp(spotify_correlation_matrx)
+summary(spotify_data.pca)
+```
+
+```{r PCA Analysis - Extracting PCA1 and PCA2 as most important Components}
+spotify_data.pca$loadings[, 1:2]
+```
+
+### Visualization of the principal components 
+
+#### Scree Plot
+
+The first approach of the list is the scree plot. It is used to visualize the importance of each principal component and can be used to determine the number of principal components to retain. The scree plot can be generated using the *fviz_eig()* function.
+```{r PCA Analysis - Graph-1}
+fviz_eig(spotify_data.pca, addlabels = TRUE)
+```
+
+**Inference:**
+This plot shows the eigenvalues in a downward curve, from highest to lowest. The first two components can be considered to be the most significant since they contain almost 60% of the total information of the data.
+But from this, we do not understand what variable that is causing maximum change.
+
+---
+
+#### Biplot of Attributes - To check similarities and differences between variables   
+
+```{r PCA Analysis - Graph-2}
+# Graph of the variables
+fviz_pca_var(spotify_data.pca, col.var = "blue")
+```
+
+**Inference:**
+In the PCA biplot of the Spotify data, three key insights can be drawn:
+
+1. **Positive Correlation Among Variables**: Variables that appear close to each other on the plot exhibit a positive correlation. For example, the proximity of `instrumentalness_` to `liveness_` to `bpm` suggests these attributes tend to increase or decrease together across the songs in the dataset.
+
+2. **Representation Quality**: The length of the vectors indicates how well each variable is represented by the first two principal components. Longer vectors mean the variable is well-represented, which is crucial for interpretation. In this plot, `acousticness_` and `liveness_` have longer vectors, suggesting they're more strongly associated with the variance captured by the first two components than some of the other variables, like `danceability_`.
+
+3. **Negative Correlation and Orthogonality**: Variables that are oriented in opposite directions from the plot's origin are negatively correlated. If two vectors are perpendicular (orthogonal), the corresponding variables are uncorrelated. For instance, `acousticness_` and `energy_` point in nearly opposite directions, which confirms the negative correlation observed in the correlation heatmap: songs with higher acousticness tend to have lower energy levels, and vice versa.
+
+
+#### Contribution of each variable 
+```{r PCA Analysis - Graph-3}
+fviz_cos2(spotify_data.pca, choice = "var", axes = 1:2)
+```
+
+#### Biplot combined with cos2 
+
+**We get a much cleaner representation of what variable is most important**
+
+```{r PCA Analysis - Graph-4}
+fviz_pca_var(spotify_data.pca, col.var = "cos2",
+             gradient.cols = c("black", "orange", "green"),
+             repel = TRUE)
+```
+
+From the biplot below:
+1. **High cos2 attributes** are colored in green: `energy` and `acousticness`.
+2. **Mid cos2 attributes** have an orange color: `valence` and `danceability`.
+3. **Finally, low cos2** attributes have a black color: `speechiness` , `liveness`, `bpm` and `instrumentalness`. 
+
+---
+
+### **Conclusion on PCA Analysis**
+
+The Principal Component Analysis (PCA) conducted on the Spotify dataset has revealed distinct correlations and representations of musical attributes. The analysis underscores the importance of PCA as a robust method in data analytics, particularly when examining complex relationships within a multidimensional space. The biplot, enhanced with the squared cosine (cos2) metric, visually communicates the quality of the representation of the variables on the principal components.
+
+**Observations**
+
+1. **Variable Contributions**: The biplot indicates that variables such as `acousticness_`, `instrumentalness_`, and `liveness_` are strongly projected onto the principal components, suggesting that they contribute significantly to the variance in the dataset. The length of the vectors implies that these features are well-represented by the first two components.
+
+2. **Correlation Structures**: The proximity of features like `instrumentalness_` and `liveness_` highlights a positive correlation, whereas `acousticness_` and `energy_` demonstrate an inverse relationship, aligning with the typical characteristics of musical tracks where acoustic songs tend to have lower energy.
+
+3. **Dimensionality Reduction**: With PC1 explaining 41.3% of the variance and PC2 accounting for 17.7%, the PCA effectively reduces the dimensionality of the dataset while retaining a substantial portion of the information. This simplification facilitates a more manageable exploration of the data.
+
+4. **Quality of Representation**: The gradient color associated with the squared cosine values provides insight into the quality of the representation of the variables. Variables with higher cos2 values are better represented on the corresponding principal component.
+
+**Academic Implications**
+
+This PCA exercise demonstrates the analytical power of PCA in uncovering underlying structures and patterns within datasets, particularly in fields like musicology and content recommendation systems. By identifying which song attributes drive variability, music streaming services can enhance their recommendation algorithms, tailoring user experiences with more precision.
+
+---
+
+
+## Conclusion I draw all the studies experiments performed on this dataset:
+### EDA - Conclusion
+I calculated summary statistics and visualized distributions of key variables:    
+
+- Most songs are relatively recent, released in 2022 or 2023. Streams and playlist adds are right skewed, with most songs having <500M streams and <200 playlist adds.
+
+- There is danceability on bpm in range of 80 - 180. The spread of BPM across danceability scores suggests that songs with a wide range of tempos can be danceable, and high danceability is not confined to a narrow tempo range.
+
+- Songs released more recently tend to have fewer streams, likely because they've had less time to accumulate them. Songs with more playlist adds also tend to have more streams.
+
+- While songs of all energy levels appear to have a chance of being added to a range of playlists, there is a concentration of songs with lower playlist presence, indicating that most songs, regardless of energy, tend to have a lower number of playlist adds.
+
+
+### PCA - Side Conclusion:
+- PCA on the Spotify dataset indicates significant contributions of features like `acousticness_`, `instrumentalness_`, and `liveness_` to data variance.   
+
+- Positive correlation is observed between `instrumentalness_` and `liveness_`; an inverse relationship exists between `acousticness_` and `energy_`.    
+
+- The first two principal components explain a combined about 60% of the variance, effectively reducing dataset dimensionality.   
+
+- The squared cosine values suggest that some variables are better represented on the principal components than others.   
+
+### Limitations:
+
+This study has limitations, chiefly the restriction to only numerical attributes, potentially overlooking the influence of categorical data such as `genre` or `artist background`. Additionally, the PCA's focus on variance means it does not necessarily identify attributes that predict success, merely those that differ the most across the dataset.
+
+For future research, it would be beneficial to incorporate categorical variables and apply PCA in conjunction with other techniques like cluster analysis or regression models. This could provide a more nuanced understanding of the factors that contribute to a song's popularity and listener appeal. Integrating temporal data(such as number of streams in the year 2023 and year 2022 for the same song) could also reveal trends over time,offering insights into the evolution of musical tastes.
+
+---
+
+References Used for understanding EDA : `Slides from ISE201 class`, `What is the question.pdf`
+References Used for understanding PCA : [PCA](https://www.datacamp.com/tutorial/pca-analysis-r)
+
+---
